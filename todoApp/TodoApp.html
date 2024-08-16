@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TodoApp</title>
+    <style>
+         * {
+            margin: 0;
+            padding: 0;
+            font: normal 12px '고딕';
+        }
+        ul, ol {list-style: none;}
+        a {text-decoration: none; color: #111;}
+        input, textarea {outline: none;}
+        
+        #wrapper {
+       position: relative;
+       width: 1920px;
+       height: 1106px;
+        background: #FFFFFF;
+        margin: 0 auto;
+
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #e0f7fa;
+        }
+
+         .ch1 {
+            position: relative;
+            width: 100%;
+            height: 50px;
+            background-color: green;
+
+         }
+        .ch1 > h1{
+            position: absolute;
+            width: 100%;
+            height: 25px;   
+            top: 12.5px;
+            left: 10px;
+            font-size: large;
+            color: white;
+        }
+         .ch2{
+            width: 100%;
+            height: 70px;
+         }
+     
+         .ch2 > h2{
+            position: relative;
+            width: 100%;
+            height: 25px;  
+            top: 25px;
+            left: 10px;
+
+         }
+     
+     
+         #todo-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px 0 0 4px;
+            border-right: none;
+         }
+     
+         #add-button {
+            padding: 10px 20px;
+            border: none;
+            background-color: green;
+            color: white;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+         }
+
+         #todo-list {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 10px;
+         }
+
+         .todo-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+
+         }
+
+         .todo-item button {
+            background-color: white;
+            border: none;
+            color: black;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+         }
+
+
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="ch1">
+            <h1>Todo List</h1>
+        </div>
+        <div class="ch2">
+            <h2>오늘 할일을 작성해 보세요.</h2>
+        </div>
+        <div>
+            <input type="text" id="todo-input" placeholder="할일을 입력하세요.">
+            <button id="add-button">추가</button>
+        </div>
+        <ul id="todo-list"></ul>
+       
+</div>
+
+    
+        <script>
+       document.addEventListener('DOMContentLoaded', function() {
+        const todoInput = document.getElementById('todo-input');
+        const addButton = document.getElementById('add-button');
+        const todoList = document.getElementById('todo-list');
+
+        // 로컬 스토리지에서 저장된 할 일을 불러온다.
+        const savedTodos = JSON.parse(localStorage.getItem('todos')) || [];
+
+        // 저장된 할 일을 DOM에 추가.
+        savedTodos.forEach((todo, index) => addTodoToDOM(todo, index + 1));
+
+        // 추가 버튼 클릭 이벤트 리스너
+        addButton.addEventListener('click', function() {
+            const newTodo = todoInput.value.trim();
+            if (newTodo !== '') {
+                const todoNumber = todoList.children.length + 1;
+                addTodoToDOM(newTodo, todoNumber);
+                saveTodoToLocalStorage(newTodo);
+                todoInput.value = ''; 
+            }
+        });
+
+        // 할 일을 DOM에 추가하는 함수
+        function addTodoToDOM(todo, index) {
+            const li = document.createElement('li');
+            li.className = 'todo-item';
+            li.textContent = `${index}. ${todo}`;
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'X';
+            deleteButton.addEventListener('click', function() {
+                deleteTodoFromLocalStorage(todo);
+                todoList.removeChild(li);
+                updateTodoNumbers();
+            });
+
+            li.appendChild(deleteButton);
+            todoList.appendChild(li);
+        }
+
+        // 할 일을 로컬 스토리지에 저장하는 함수
+        function saveTodoToLocalStorage(todo) {
+            const todos = JSON.parse(localStorage.getItem('todos')) || [];
+            todos.push(todo);
+            localStorage.setItem('todos', JSON.stringify(todos));
+        }
+
+        // 로컬 스토리지에서 할 일을 삭제하는 함수
+        function deleteTodoFromLocalStorage(todo) {
+            let todos = JSON.parse(localStorage.getItem('todos')) || [];
+            todos = todos.filter(t => t !== todo);
+            localStorage.setItem('todos', JSON.stringify(todos));
+        }
+
+        // 할 일의 번호를 업데이트하는 함수
+        function updateTodoNumbers() {
+            const todoItems = todoList.children;
+            Array.from(todoItems).forEach((item, index) => {
+                item.firstChild.textContent = `${index + 1}. ${item.firstChild.textContent.split('. ')[1]}`;
+            });
+        }
+    });
+
+    </script>
+</body>
+</html>
